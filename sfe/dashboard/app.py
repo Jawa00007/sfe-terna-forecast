@@ -89,10 +89,22 @@ tab_forecast, tab_data, tab_models, tab_backtest, tab_audit = st.tabs(
 )
 
 
+def _default_forecast_day() -> date:
+    """A delivery day inside the landed window, so a first-time visitor doesn't land on a
+    DEGRADED forecast by default. Falls back to tomorrow if nothing has landed yet."""
+    df = get_storage().read_dataset(
+        "landing/terna/market/load-forecast", columns=["_mtu_start"]
+    )
+    if df.empty:
+        return date.today() + timedelta(days=1)
+    latest = pd.to_datetime(df["_mtu_start"], utc=True).max()
+    return utc_to_rome(latest.to_pydatetime()).date()
+
+
 # ---------------------------------------------------------------- Forecast --
 def _render_forecast_tab() -> None:
     c1, c2, c3 = st.columns([2, 1, 1])
-    dd = c1.date_input("Delivery day", value=date.today() + timedelta(days=1), key="fc_day")
+    dd = c1.date_input("Delivery day", value=_default_forecast_day(), key="fc_day")
     horizon = c2.selectbox("Horizon", list(HORIZON_OFFSET_H), index=0, key="fc_horizon")
     run = c3.button("Generate forecast", type="primary", key="fc_run")
 
