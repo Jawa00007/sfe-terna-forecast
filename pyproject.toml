@@ -1,0 +1,74 @@
+[project]
+name = "sfe"
+version = "0.1.0"
+description = "Sbilanciamento Forecast Engine - Terna imbalance sign & price forecasting"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+
+dependencies = [
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "pyyaml>=6.0",
+    "httpx>=0.27",
+    "tenacity>=8.3",
+    "pandas>=2.2",
+    "pyarrow>=16.0",
+    "duckdb>=1.0",
+    "python-dateutil>=2.9",
+    "tzdata>=2024.1",
+]
+
+[project.optional-dependencies]
+orchestration = ["prefect>=2.19"]
+models = ["lightgbm>=4.3", "scikit-learn>=1.5", "mlflow>=2.14", "numpy>=1.26"]
+serve = ["fastapi>=0.111", "uvicorn>=0.30"]
+dashboard = ["streamlit>=1.36", "plotly>=5.22"]
+# Everything the dashboard needs to seed + serve itself standalone (Render, etc.):
+# dashboard + the model libraries, but skipping the heavy mlflow dependency
+# (sfe.models.registry falls back to a JSONL run log when mlflow is absent).
+deploy = [
+    "streamlit>=1.36", "plotly>=5.22", "lightgbm>=4.3", "scikit-learn>=1.5", "numpy>=1.26",
+]
+dev = [
+    "pytest>=8.2",
+    "pytest-cov>=5.0",
+    "respx>=0.21",
+    "ruff>=0.5",
+]
+
+[project.scripts]
+sfe-backfill = "sfe.scripts.backfill:main"
+sfe-build-features = "sfe.scripts.build_features:main"
+sfe-eda-spread = "sfe.scripts.eda_spread:main"
+sfe-train-baseline = "sfe.scripts.train_baseline:main"
+sfe-run-backtest = "sfe.scripts.run_backtest:main"
+sfe-shadow-run = "sfe.scripts.shadow_run:main"
+sfe-train-all-horizons = "sfe.scripts.train_all_horizons:main"
+sfe-retrain-check = "sfe.scripts.retrain_check:main"
+sfe-mock-terna = "sfe.testing.mock_terna:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["sfe"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "contract: tests that validate parsing against recorded/mock API payloads",
+]
+filterwarnings = [
+    # starlette.testclient nags about httpx vs httpx2; the client works fine here.
+    "ignore:Using `httpx` with `starlette.testclient`:Warning",
+]

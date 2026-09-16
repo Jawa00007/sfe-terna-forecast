@@ -1,0 +1,48 @@
+# Structural-break / regime markers (PRD DQ-4, A-1, A-4, A-5).
+# These are exposed to models as categorical features AND used as hard boundaries in the
+# walk-forward backtest. Dates are inclusive-start, in Europe/Rome local time.
+#
+# STATUS: placeholder values pending A-1..A-5 resolution in Phase 0. Every entry below
+# must be confirmed against the current Terna Grid Code and ARERA resolutions.
+
+mtu:
+  # A-1: settlement MTU. `Orario` = hourly, `Quarto Orario` = 15-minute.
+  - from: "2019-01-01"
+    resolution: PT1H
+    terna_dataType: "Orario"
+    confirmed: false
+  - from: "2026-02-01"        # TIDE consolidation phase - CONFIRM exact cutover
+    resolution: PT15M
+    terna_dataType: "Quarto Orario"
+    confirmed: false
+
+pricing_rule:
+  - from: "2019-01-01"
+    rule: dual_price
+    confirmed: false
+  - from: "2022-04-01"        # ARERA single-price for all units
+    rule: single_price
+    confirmed: false
+
+tide_phase:
+  - from: "2019-01-01"
+    phase: pre_tide
+    confirmed: false
+  - from: "2025-01-01"        # CONFIRM
+    phase: tide_transition
+    confirmed: false
+  - from: "2026-02-01"        # CONFIRM
+    phase: tide_consolidation
+    confirmed: false
+  - from: "2026-12-31"        # CONFIRM - full regime, expect a structural break / rebuild
+    phase: tide_full
+    confirmed: false
+
+zone_config:
+  - from: "2019-01-01"
+    zones: [NORD, CNOR, CSUD, SUD, SICI, SARD, CALA]
+    note: "CALA present historically; confirm split/merge dates (A-4)"
+    confirmed: false
+  - from: "2021-01-01"        # CONFIRM CALA merge date
+    zones: [NORD, CNOR, CSUD, SUD, SICI, SARD]
+    confirmed: false

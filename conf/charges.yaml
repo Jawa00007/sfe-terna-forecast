@@ -1,0 +1,30 @@
+# Regulatory charge parameters for the net-margin calculation (PRD R-1, F-12).
+# The decision layer subtracts these BEFORE recommending a position. Gross spread S is
+# never reported as P&L.
+#
+# STATUS: placeholders. The authoritative source is Terna's
+# fees/v1.0/macrozonal-no-arbitrage-prices endpoint (per-macrozone, per-period). These
+# values are the fallback / sensitivity anchors only.
+
+non_arbitrage_charge:
+  source: terna_endpoint            # 'terna_endpoint' | 'constant' | 'model'
+  endpoint: macrozonal-no-arbitrage-prices
+  # Fallback used when the endpoint value is missing for a period:
+  fallback_eur_per_mwh: 0.0
+  # Sensitivity range for backtest reporting (PRD B-5): low / central / high multipliers
+  # applied to the observed/forecast charge.
+  sensitivity_multipliers: [0.5, 1.0, 1.5]
+
+dispatch_order_penalty:
+  # Charge for failure to respect dispatching orders, portfolio-level per area.
+  # Not applicable to a pure schedule-deviation BRP in v1, but modelled as an expected
+  # component so it can be switched on for enabled units later.
+  enabled: false
+  expected_eur_per_mwh: 0.0
+
+imbalance_settlement:
+  # Single-price rule since 2022-04 (A-3): shortfall and surplus settle at the same
+  # unbalance_price_EURxMWh. Confirm treatment of periods with no activations
+  # ("avoided activations" value).
+  pricing_rule: single_price
+  no_activation_reference: base_price_EURxMWh

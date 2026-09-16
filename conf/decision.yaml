@@ -1,0 +1,38 @@
+# Decision-layer parameters (PRD F-11, F-12, F-13).
+# The recommended deviation Delta for each MTU maximises expected margin NET of the
+# non-arbitrage charge and expected penalties, subject to the limits below, and abstains
+# when the predictive distribution is wide relative to that expected margin.
+
+sizing:
+  # Closed-form optimum for  max_Delta  Delta*(E[S] - eta*Delta) - |Delta|*charge
+  #   Delta* = (E[S] - sign(E[S])*charge) / (2*eta)
+  # eta is the market-impact elasticity (EUR/MWh of spread move per MWh of own deviation).
+  # Overridden by an empirical estimate when available (see market_impact).
+  elasticity_eur_per_mwh2: 0.02
+  # Scale the closed-form size (0-1); < 1 is conservative.
+  aggressiveness: 0.5
+  # Round recommended Delta to this MW grid.
+  rounding_mwh: 1.0
+
+abstain:
+  # Abstain if |expected net margin per MWh| < min_edge_eur_per_mwh.
+  min_edge_eur_per_mwh: 1.5
+  # Abstain if |E[S_net]| < uncertainty_mult * sigma_S  (sigma from the p10-p90 fan).
+  uncertainty_mult: 0.35
+  # Abstain if the sign model's probability is within this band of 0.5.
+  sign_prob_deadband: 0.05
+
+limits:
+  # Hard cap on |Delta| as a fraction of forecast portfolio load for the MTU.
+  pct_load_cap: 0.15
+  # Absolute per-MTU cap (MW). null => only the pct-of-load cap applies.
+  per_mtu_mwh_cap: 50.0
+  # Aggregate |Delta| across all MTUs of a delivery day (MWh).
+  daily_mwh_cap: 600.0
+  # Per-MTU CVaR(95%) of P&L must not be worse than -cvar_limit_eur_per_mwh (per MWh of |Delta|).
+  cvar_alpha: 0.95
+  cvar_limit_eur_per_mwh: 25.0
+
+portfolio:
+  # Fallback constant load (MW) per area per MTU when no load forecast is available.
+  default_load_mwh: 200.0

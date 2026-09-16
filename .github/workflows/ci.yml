@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+      - name: Sync deps
+        # lightgbm + scikit-learn for the model tests; skip the heavier mlflow (registry
+        # degrades to a JSONL sidecar when it is absent).
+        run: uv pip install --system -e ".[dev,serve]" lightgbm scikit-learn
+      - name: Lint
+        run: ruff check sfe tests
+      - name: Unit + contract tests
+        run: pytest -q
+      - name: Backfill dry-run (no network)
+        run: python -m sfe.scripts.backfill --targets --from 2024-01-01 --to 2024-12-31 --dry-run

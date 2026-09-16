@@ -1,0 +1,120 @@
+# Terna Developer Portal endpoint catalogue (PRD 6.1).
+#
+# STATUS: paths and response field lists are derived from the PRD and the public catalogue
+# description. They MUST be reconciled against the live Swagger definitions and the io-docs
+# test console during Phase 0 (portal descriptions for the Adequacy and Market groups are
+# placeholders). `date_param_style` and `numeric_as_string` are the known, load-bearing
+# quirks - keep the defensive parsing even after schemas are confirmed.
+
+defaults:
+  date_param_style: dd_mm_yyyy      # dateFrom / dateTo as "31/12/2025"
+  date_param_names: { from: dateFrom, to: dateTo }
+  numeric_as_string: true          # every numeric field arrives as a JSON string
+  timezone: Europe/Rome
+  supports_dataType: true          # optional query param: "Orario" | "Quarto Orario"
+  max_window_days: 60              # chunk backfill requests to this width
+  page_style: none
+
+groups:
+
+  fees:
+    base_path: /fees/v1.0
+    endpoints:
+      daily-macrozonal-imbalance:
+        path: /daily-macrozonal-imbalance
+        role: target_sign
+        grain: [macrozone, period]
+        key_fields: [Date, Macrozone]
+        value_fields:
+          - zonal_aggregate_sign
+          - zonal_aggregate_unbalance_MWh
+          - exchanges_MWh
+          - foreign_MWh
+        vintage: definitive
+      daily-prices:
+        path: /daily-prices
+        role: target_price
+        grain: [macrozone, period]
+        key_fields: [Date, Macrozone]
+        value_fields:
+          - base_price_EURxMWh
+          - incentive_component_EURxMWh
+          - unbalance_price_EURxMWh
+        vintage: definitive
+      preliminary-macrozonal-imbalance:
+        path: /preliminary-macrozonal-imbalance
+        role: target_sign
+        grain: [macrozone, period]
+        vintage: preliminary
+      preliminary-prices:
+        path: /preliminary-prices
+        role: target_price
+        grain: [macrozone, period]
+        vintage: preliminary
+      macrozonal-no-arbitrage-prices:
+        path: /macrozonal-no-arbitrage-prices
+        role: charge
+        grain: [macrozone, period]
+        vintage: definitive
+      commercial-balance-prices:
+        path: /commercial-balance-prices
+        role: feature
+        grain: [macrozone, period]
+      zonal-exchanges:
+        path: /zonal-exchanges
+        role: feature
+        grain: [zone, period]
+      secondary-adjustment-levels:
+        path: /secondary-adjustment-levels
+        role: feature
+        grain: [zone, period]
+
+  market:
+    base_path: /market/v1.0
+    endpoints:
+      load-forecast:        { path: /load-forecast, role: feature, grain: [zone, period] }
+      forecast-transit-limits: { path: /forecast-transit-limits, role: feature, grain: [border, period] }
+      transit-limits:       { path: /transit-limits, role: feature, grain: [border, period] }
+      transit-margins:      { path: /transit-margins, role: feature, grain: [border, period] }
+      secondary-reserve-requirement:   { path: /secondary-reserve-requirement, role: feature, grain: [zone, period] }
+      replacement-reserve-requirement: { path: /replacement-reserve-requirement, role: feature, grain: [zone, period] }
+      rotating-reserve-requirement:    { path: /rotating-reserve-requirement, role: feature, grain: [zone, period] }
+      total-reserve-requirement:       { path: /total-reserve-requirement, role: feature, grain: [zone, period] }
+      accepted-offers:      { path: /accepted-offers, role: feature, grain: [zone, period] }
+      submitted-offers:     { path: /submitted-offers, role: feature, grain: [zone, period] }
+      prices:               { path: /prices, role: feature, grain: [zone, period] }
+      quantity:             { path: /quantity, role: feature, grain: [zone, period] }
+      costs:                { path: /costs, role: feature, grain: [zone, period] }
+
+  generation:
+    base_path: /generation/v1.0
+    endpoints:
+      wind-production-forecast: { path: /wind-production-forecast, role: feature, grain: [zone, period] }
+      actual-generation:        { path: /actual-generation, role: feature, grain: [zone, period] }
+      renewable-generation:     { path: /renewable-generation, role: feature, grain: [zone, period] }
+      installed-capacity:       { path: /installed-capacity, role: feature, grain: [zone, month] }
+
+  load:
+    base_path: /load/v1.0
+    endpoints:
+      total-load:  { path: /total-load, role: feature, grain: [zone, period] }
+      market-load: { path: /market-load, role: feature, grain: [zone, period] }
+
+  transmission:
+    base_path: /transmission/v1.0
+    endpoints:
+      scheduled-internal-exchange: { path: /scheduled-internal-exchange, role: feature, grain: [border, period] }
+      physical-internal-flow:      { path: /physical-internal-flow, role: feature, grain: [border, period] }
+      scheduled-foreign-exchange:  { path: /scheduled-foreign-exchange, role: feature, grain: [border, period] }
+      physical-foreign-flow:       { path: /physical-foreign-flow, role: feature, grain: [border, period] }
+
+  outages:
+    base_path: /outages/v1.0
+    endpoints:
+      unavailability-productive-units: { path: /unavailability-productive-units, role: feature, grain: [unit, period] }
+
+  adequacy:
+    base_path: /adequacy/v1.0
+    endpoints:
+      expected-available-capacity:            { path: /expected-available-capacity, role: feature, grain: [zone, period] }
+      aggregate-effective-available-capacity: { path: /aggregate-effective-available-capacity, role: feature, grain: [zone, period] }

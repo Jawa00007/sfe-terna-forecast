@@ -1,0 +1,35 @@
+# Area configuration. Resolves PRD A-2 structurally: everything downstream is keyed on a
+# generic `area` plus an `area_level`. Default target level is `macrozone` because the
+# published corrispettivi series (daily-macrozonal-imbalance, daily-prices) are macrozonal.
+# Flip `target_level` to `zone` once A-2 is answered for the portfolio in question.
+
+target_level: macrozone
+
+levels:
+  macrozone:
+    # Terna Fees / corrispettivi macrozones
+    areas: [NORD, SUD]
+  zone:
+    # Market zones (A-4: confirm CALA status and any historical changes)
+    areas: [NORD, CNOR, CSUD, SUD, SICI, SARD]
+
+# Which market zones roll up into each macrozone (used for feature aggregation and,
+# if target_level=macrozone, for mapping zonal features onto the macrozone target).
+zone_to_macrozone:
+  NORD: NORD
+  CNOR: NORD
+  CSUD: SUD
+  SUD: SUD
+  SICI: SUD
+  SARD: SUD
+
+# Neighbouring-zone adjacency for cross-zone state features.
+adjacency:
+  NORD: [CNOR, SARD]
+  CNOR: [NORD, CSUD, SARD]
+  CSUD: [CNOR, SUD, SARD]
+  SUD: [CSUD, SICI]
+  SICI: [SUD]
+  SARD: [NORD, CNOR, CSUD]
+
+timezone: Europe/Rome

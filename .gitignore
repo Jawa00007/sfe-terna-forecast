@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Project data (never commit)
+/data/
+!/data/.gitkeep
+
+# Local secrets
+.env
+.env.local
+
+# MLflow / notebooks
+mlruns/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db

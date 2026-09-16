@@ -1,0 +1,31 @@
+# Render Blueprint for the SFE monitoring dashboard (Streamlit).
+#
+# No real Terna access exists yet (PRD Phase 0), so this deploys the dashboard against
+# self-seeded synthetic data (sfe.scripts.seed_demo_data) - it is a demo of the shadow-mode
+# tooling, not a live forecasting service. See docs/deploy_render.md.
+#
+# Free-tier web services have an EPHEMERAL disk: everything seed_demo_data.py lands is
+# wiped on every deploy and on restart after idling, and is reseeded from scratch at next
+# boot (adds ~1-2 min to cold start). Attach a Render Disk + a paid instance type for
+# storage that survives restarts.
+
+services:
+  - type: web
+    name: sfe-dashboard
+    runtime: python
+    plan: free
+    buildCommand: pip install --upgrade pip && pip install -e ".[deploy]"
+    startCommand: >-
+      python -m sfe.scripts.seed_demo_data &&
+      streamlit run sfe/dashboard/app.py
+      --server.port $PORT --server.address 0.0.0.0 --server.headless true
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SFE_ENV
+        value: prod
+      # Optional: set a value in the Render dashboard to password-gate the app.
+      # Leave unset for an open demo.
+      - key: DASHBOARD_PASSWORD
+        sync: false
