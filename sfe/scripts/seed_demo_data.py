@@ -49,11 +49,14 @@ def already_seeded() -> bool:
     return get_storage().exists("landing/terna/fees/daily-prices")
 
 
-# Small trees for a fast container boot; still plenty to demo calibration + fans.
-_FAST_PARAMS = {"n_estimators": 150, "num_leaves": 31, "verbose": -1, "n_jobs": -1}
+# Small trees for a fast, low-CPU container boot; still plenty to demo calibration + fans.
+# n_jobs is pinned rather than -1: on a CPU-throttled/shared container, os.cpu_count() often
+# over-reports the actual quota, and LightGBM then oversubscribes threads and gets slower,
+# not faster - triggering exactly the kind of fair-use throttle free tiers apply.
+_FAST_PARAMS = {"n_estimators": 60, "num_leaves": 15, "verbose": -1, "n_jobs": 1}
 
 
-def seed(*, end: date | None = None, months: int = 1, lookback_days: int = 20) -> None:
+def seed(*, end: date | None = None, months: float = 0.5, lookback_days: int = 12) -> None:
     end = end or (date.today() - timedelta(days=2))
     start = end - timedelta(days=30 * months)
 
