@@ -24,11 +24,13 @@ orchestration = ["prefect>=2.19"]
 models = ["lightgbm>=4.3", "scikit-learn>=1.5", "mlflow>=2.14", "numpy>=1.26"]
 serve = ["fastapi>=0.111", "uvicorn>=0.30"]
 dashboard = ["streamlit>=1.36", "plotly>=5.22"]
-# Everything the dashboard needs to seed + serve itself standalone (Render, etc.):
-# dashboard + the model libraries, but skipping the heavy mlflow dependency
-# (sfe.models.registry falls back to a JSONL run log when mlflow is absent).
+# Everything the dashboard needs to seed + serve itself standalone (Render,
+# Streamlit Cloud, etc.): dashboard + model libraries + fastapi (seed_demo_data.py drives
+# the in-process mock Terna ASGI app to land synthetic data), skipping the heavy mlflow
+# dependency (sfe.models.registry falls back to a JSONL run log when mlflow is absent).
 deploy = [
     "streamlit>=1.36", "plotly>=5.22", "lightgbm>=4.3", "scikit-learn>=1.5", "numpy>=1.26",
+    "fastapi>=0.111",
 ]
 dev = [
     "pytest>=8.2",
