@@ -1,0 +1,4 @@
+# Read by hosts with no custom build command (Streamlit Community Cloud, etc.).
+# Editable install of this package + the deploy extra (dashboard + model libs, skipping
+# the heavier mlflow dependency - sfe.models.registry falls back to a JSONL run log).
+-e .[deploy]

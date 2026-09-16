@@ -50,6 +50,23 @@ def _check_password() -> bool:
 if not _check_password():
     st.stop()
 
+
+@st.cache_resource(show_spinner="First boot: seeding demo data + training models...")
+def _ensure_seeded() -> bool:
+    """Self-seed on hosts with no build/start-command hook (e.g. Streamlit Community Cloud).
+
+    Cached per server process (not per session/user) via cache_resource, and
+    seed_demo_data.seed() itself skips the backfill if landing data is already present -
+    so this is a cheap no-op after the first run on a given container/disk.
+    """
+    from sfe.scripts.seed_demo_data import seed
+
+    seed()
+    return True
+
+
+_ensure_seeded()
+
 st.title("Sbilanciamento Forecast Engine - monitoring")
 st.caption(
     "Shadow-mode dashboard. Phase 0-4 build; no live Terna data yet - reads whatever has "

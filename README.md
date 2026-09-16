@@ -101,9 +101,13 @@ SFE_TERNA__BASE_URL=http://127.0.0.1:8900 \
 
 ## Deploying the dashboard
 
-`render.yaml` + `sfe/scripts/seed_demo_data.py` publish the monitoring dashboard as a
-public Render web service, self-seeded with synthetic data (no real Terna connection).
-See [`docs/deploy_render.md`](docs/deploy_render.md).
+The dashboard self-seeds with synthetic data on first boot (no real Terna connection) via
+`sfe/scripts/seed_demo_data.py` — no manual data prep needed on the host.
+
+- **Free, no card:** [Streamlit Community Cloud](https://share.streamlit.io) —
+  see [`docs/deploy_streamlit_cloud.md`](docs/deploy_streamlit_cloud.md).
+- **Paid, always-on, persistent disk:** Render, via `render.yaml` —
+  see [`docs/deploy_render.md`](docs/deploy_render.md).
 
 ## Layout
 
